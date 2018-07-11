@@ -6,3 +6,4 @@
 #
 Template, Hostname, Vendor, Command
 cisco_xr_show_interfaces.template, .*, cisco_xr, sh[[ow]] inte[[rfaces]]
+arista_eos_show_interfaces.template, .*, arista_eos, sh[[ow]] inte[[rfaces]]
