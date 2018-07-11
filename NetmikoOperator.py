@@ -8,6 +8,7 @@ class NetmikoOperator():
 
     def __init__(self):
         self.net_connect = {}
+        self.device = ""
 
 
     def open_session(self,ip,username,password,device,hostname):
@@ -23,6 +24,9 @@ class NetmikoOperator():
                 'password': password,
                 }
             self.net_connect[hostname] = ConnectHandler(**handler)
+            self.device = device
+            if self.device == "arista_eos":
+                self.net_connect[hostname].enable()
             print("[INFO] Successfully make SSH connection to {}".format(hostname))
 
 
@@ -51,7 +55,7 @@ class NetmikoOperator():
         command = 'show interface %s' % format(ifname)
         ifstate_ouput = self.send_command(command,hostname)
         cli_table = clitable.CliTable('index', './template')
-        attributes = {'Command': 'show interfaces', 'Vendor':'cisco_xr'}
+        attributes = {'Command': 'show interfaces', 'Vendor':self.device}
         cli_table.ParseCmd(ifstate_ouput, attributes)
         ifstate_dict =  self.clitable_to_dict(cli_table)
         if ifstate_dict[0]["link_status"] == "up":
@@ -72,17 +76,26 @@ class NetmikoOperator():
 
     def commit_configlist(self,config,comment,hostname):
         # commit config to IOS-XR device
-        output1 = self.net_connect[hostname].send_config_set(config)
-        output2 = self.net_connect[hostname].send_command("show configuration")
-        output3 = self.net_connect[hostname].commit(comment=comment)
-        output4 = self.net_connect[hostname].exit_config_mode()
-        print("[INFO] Successfully change config on {}".format(hostname))
-        print("="*30)
-        print(output1)
-        print(output2)
-        print(output3)
-        print(output4)
-        print("="*30)
+        if self.device == "cisco_xr":
+            output1 = self.net_connect[hostname].send_config_set(config)
+            output2 = self.net_connect[hostname].send_command("show configuration")
+            output3 = self.net_connect[hostname].commit(comment=comment)
+            output4 = self.net_connect[hostname].exit_config_mode()
+            print("[INFO] Successfully change config on {}".format(hostname))
+            print("="*30)
+            print(output1)
+            print(output2)
+            print(output3)
+            print(output4)
+            print("="*30)
+        elif self.device == "arista_eos":
+            output1 = self.net_connect[hostname].send_config_set(config)
+            output2 = self.net_connect[hostname].exit_config_mode()
+            print("[INFO] Successfully change config on {}".format(hostname))
+            print("="*30)
+            print(output1)
+            print(output2)
+            print("="*30)
 
 
     def shutdown_interface(self,ifname,comment,hostname):
