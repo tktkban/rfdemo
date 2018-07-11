@@ -4,7 +4,7 @@ Library    NetmikoOperator.py
 
 *** Test Cases ***
 Login to router
-    OPEN SESSION    ${IP}    ${user}    ${pass}    cisco_xr    ${hostname}
+    OPEN SESSION    ${IP}    ${user}    ${pass}    ${device}    ${hostname}
 
 Check if state : Initial check
     ${return}=    CHECK IF STATE    ${ifname}    ${hostname}
